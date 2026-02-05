@@ -60,7 +60,12 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - `health` (requires `--provider <pkg>`; uses resolved config with overrides; no real provider installed yet)
 
 ### Core
-- `loadProvider(pkgName)` dynamic imports provider package, expects export `createProvider()`.
+- `loadProvider(pkgName)` dynamic imports provider package with full validation:
+  - Validates `createProvider()` export exists
+  - Validates provider has required `manifest` property
+  - Validates manifest structure (name, version, permissions, networks, features)
+  - Validates required methods (`health()`, `rewards.status()`, `rewards.claim()`)
+  - Returns user-friendly error messages on validation failure
 - Runners:
   - `runHealth(ctx, providerPkg)`
   - `runRewardsStatus(ctx, providerPkg, input)`
@@ -71,36 +76,38 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 
 ### plugin-example
 - First working provider plugin with fake data.
+- Has `lumira.plugin.json` manifest file.
 - Implements full Provider interface:
   - `health()` returns `{ ok: true, details: { provider: "example" } }`
   - `rewards.status()` returns fake rewards list
   - `rewards.claim()` respects dry-run flag, returns fake signatures
+- Passes all manifest validations.
 
 ---
 
 ## 4) What is NEXT (current objective)
-**Add plugin manifest + loader validation.**
+**Add audit logging for all actions.**
 
 ### Next prompt to execute
-- **Prompt 05 from `prompts.md`:**
-  - Add `lumira.plugin.json` to each plugin
-  - Upgrade `loadProvider()` to validate manifest and exports
-  - Return user-friendly errors on validation failure
+- **Prompt 06 from `prompts.md`:**
+  - Implement `createRunLogger()` writing to `./lumira-runs/`
+  - Log timestamp, command, provider, dryRun, input, result
+  - Integrate audit logging into CLI commands
 
 ---
 
 ## 5) Definition of done for the NEXT objective
 - `pnpm -r build` passes
-- plugin-example has manifest validation
-- `lumira health` shows friendly error if provider contract is invalid
+- Running `health` creates a log file under `lumira-runs/`
+- Log contains provider, action, and result
 
 ---
 
 ## 6) Session Kickoff Prompt (copy/paste into Claude Code)
 > Read STATE.md first and follow it strictly.
 > Do NOT refactor unrelated parts.
-> Execute **Prompt 05** from prompts.md.
-> After implementing, run: `pnpm -r build`, then test manifest validation.
+> Execute **Prompt 06** from prompts.md.
+> After implementing, run: `pnpm -r build`, then test audit logging.
 > Report what changed and what command outputs are expected.
 
 ---
@@ -110,13 +117,14 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Build: ✅
 - CLI doctor: ✅ (with config overrides)
 - CLI init: ✅
-- CLI health: ✅ (with @lumira/plugin-example)
-- Next: Prompt 05 (manifest validation)
+- CLI health: ✅ (with @lumira/plugin-example + manifest validation)
+- Next: Prompt 06 (audit logging)
 
 ### Notes / issues
 - Node is v25.x; `corepack` missing but pnpm works via npm. Not blocking.
 - Prompt 02 completed: `lumira init` and `lumira doctor` with config reading work.
 - Prompt 03 completed: Config overrides via `--config`, `--rpc`, `--dry-run`, `--no-dry-run` work.
 - Prompt 04 completed: `@lumira/plugin-example` package created. Health command works with example provider. Note: Added plugin-example as devDependency to core for dynamic import resolution in monorepo.
+- Prompt 05 completed: Added `lumira.plugin.json` manifest file. Upgraded `loadProvider()` with comprehensive validation (manifest structure, required methods). Returns user-friendly error messages for invalid providers.
 
 ---

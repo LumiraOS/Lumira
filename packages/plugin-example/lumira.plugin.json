@@ -1,0 +1,7 @@
+{
+  "name": "@lumira/plugin-example",
+  "version": "0.0.0",
+  "permissions": ["read"],
+  "networks": ["solana-mainnet", "solana-devnet"],
+  "features": ["rewards"]
+}

@@ -59,3 +59,32 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ---
+
+## Prompt 05 ✅
+Added plugin manifest system with comprehensive validation. Created `lumira.plugin.json` for plugin-example and upgraded `loadProvider()` to validate provider structure, manifest completeness, and required methods. The loader now returns user-friendly error messages when plugins don't meet the contract requirements.
+
+**Validation checks:**
+- `createProvider()` export exists
+- Provider object is returned (not null/undefined)
+- Manifest property exists
+- Manifest has required fields: name, version, permissions, networks, features
+- Required methods exist: `health()`, `rewards.status()`, `rewards.claim()`
+
+**Commit:**
+```
+feat(core): add plugin manifest validation system
+
+Add lumira.plugin.json manifest file to plugin-example containing name,
+version, permissions, networks, and features.
+
+Upgrade loadProvider() in core to perform comprehensive validation:
+- Validate createProvider() export exists
+- Validate provider structure and manifest property
+- Validate manifest completeness (name, version, permissions, etc)
+- Validate required methods (health, rewards.status, rewards.claim)
+- Return user-friendly error messages for each validation failure
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
+---
