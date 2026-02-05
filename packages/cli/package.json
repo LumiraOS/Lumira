@@ -12,6 +12,7 @@
   "dependencies": {
     "@lumira/core": "workspace:*",
     "@lumira/plugin-types": "workspace:*",
+    "@lumira/plugin-example": "workspace:*",
     "commander": "^12.0.0"
   }
 }

@@ -34,6 +34,7 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - `@lumira/plugin-types`
   - `@lumira/core`
   - `@lumira/cli`
+  - `@lumira/plugin-example`
 
 ### Build
 - `pnpm install` ✅
@@ -68,31 +69,38 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 ### plugin-types
 - Defines Provider interface (health + rewards.status/claim) and basic types.
 
+### plugin-example
+- First working provider plugin with fake data.
+- Implements full Provider interface:
+  - `health()` returns `{ ok: true, details: { provider: "example" } }`
+  - `rewards.status()` returns fake rewards list
+  - `rewards.claim()` respects dry-run flag, returns fake signatures
+
 ---
 
 ## 4) What is NEXT (current objective)
-**Create first local example provider plugin.**
+**Add plugin manifest + loader validation.**
 
 ### Next prompt to execute
-- **Prompt 04 from `prompts.md`:**
-  - Create `packages/plugin-example` package
-  - Export `createProvider()` matching `@lumira/plugin-types`
-  - Implement health(), rewards.status(), rewards.claim() with fake data
-  - Update CLI to allow `lumira health --provider @lumira/plugin-example`
+- **Prompt 05 from `prompts.md`:**
+  - Add `lumira.plugin.json` to each plugin
+  - Upgrade `loadProvider()` to validate manifest and exports
+  - Return user-friendly errors on validation failure
 
 ---
 
 ## 5) Definition of done for the NEXT objective
 - `pnpm -r build` passes
-- `pnpm --filter @lumira/cli dev health --provider @lumira/plugin-example` works
+- plugin-example has manifest validation
+- `lumira health` shows friendly error if provider contract is invalid
 
 ---
 
 ## 6) Session Kickoff Prompt (copy/paste into Claude Code)
 > Read STATE.md first and follow it strictly.
 > Do NOT refactor unrelated parts.
-> Execute **Prompt 04** from prompts.md.
-> After implementing, run: `pnpm -r build`, then test `lumira health --provider @lumira/plugin-example`.
+> Execute **Prompt 05** from prompts.md.
+> After implementing, run: `pnpm -r build`, then test manifest validation.
 > Report what changed and what command outputs are expected.
 
 ---
@@ -102,11 +110,13 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Build: ✅
 - CLI doctor: ✅ (with config overrides)
 - CLI init: ✅
-- Next: Prompt 04 (example provider plugin)
+- CLI health: ✅ (with @lumira/plugin-example)
+- Next: Prompt 05 (manifest validation)
 
 ### Notes / issues
 - Node is v25.x; `corepack` missing but pnpm works via npm. Not blocking.
 - Prompt 02 completed: `lumira init` and `lumira doctor` with config reading work.
 - Prompt 03 completed: Config overrides via `--config`, `--rpc`, `--dry-run`, `--no-dry-run` work.
+- Prompt 04 completed: `@lumira/plugin-example` package created. Health command works with example provider. Note: Added plugin-example as devDependency to core for dynamic import resolution in monorepo.
 
 ---

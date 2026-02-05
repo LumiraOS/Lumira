@@ -23,6 +23,9 @@ importers:
       '@lumira/core':
         specifier: workspace:*
         version: link:../core
+      '@lumira/plugin-example':
+        specifier: workspace:*
+        version: link:../plugin-example
       '@lumira/plugin-types':
         specifier: workspace:*
         version: link:../plugin-types
@@ -31,6 +34,16 @@ importers:
         version: 12.1.0
 
   packages/core:
+    dependencies:
+      '@lumira/plugin-types':
+        specifier: workspace:*
+        version: link:../plugin-types
+    devDependencies:
+      '@lumira/plugin-example':
+        specifier: workspace:*
+        version: link:../plugin-example
+
+  packages/plugin-example:
     dependencies:
       '@lumira/plugin-types':
         specifier: workspace:*

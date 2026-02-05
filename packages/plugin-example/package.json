@@ -1,5 +1,5 @@
 {
-  "name": "@lumira/core",
+  "name": "@lumira/plugin-example",
   "version": "0.0.0",
   "type": "module",
   "main": "dist/index.js",
@@ -15,8 +15,5 @@
   },
   "dependencies": {
     "@lumira/plugin-types": "workspace:*"
-  },
-  "devDependencies": {
-    "@lumira/plugin-example": "workspace:*"
   }
 }
