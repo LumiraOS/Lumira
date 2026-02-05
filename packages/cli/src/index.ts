@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { runHealth } from "@lumira/core";
+import { runHealth, createRunLogger } from "@lumira/core";
 import type { LumiraContext, Network } from "@lumira/plugin-types";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -155,8 +155,33 @@ program
       dryRun: resolved.dryRun,
       log: (m) => console.log(m)
     };
-    const res = await runHealth(ctx, opts.provider);
-    console.log(res);
+
+    const logger = createRunLogger();
+    const timestamp = new Date().toISOString();
+    let success = false;
+    let result: any;
+    let error: string | undefined;
+
+    try {
+      result = await runHealth(ctx, opts.provider);
+      success = true;
+      console.log(result);
+    } catch (e: any) {
+      success = false;
+      error = e?.message ?? String(e);
+      throw e;
+    } finally {
+      const logPath = await logger.log({
+        timestamp,
+        command: "health",
+        provider: opts.provider,
+        dryRun: resolved.dryRun,
+        result: { success, data: result, error }
+      });
+      if (success) {
+        console.log(`📝 Log: ${logPath}`);
+      }
+    }
   });
 
 program.parseAsync(process.argv);

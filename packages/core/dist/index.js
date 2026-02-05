@@ -1,3 +1,22 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+export function createRunLogger(baseDir = "./lumira-runs") {
+    return {
+        async log(entry) {
+            // Ensure directory exists
+            if (!fs.existsSync(baseDir)) {
+                fs.mkdirSync(baseDir, { recursive: true });
+            }
+            // Generate filename with timestamp
+            const now = new Date();
+            const filename = `run-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}.json`;
+            const filepath = path.join(baseDir, filename);
+            // Write log file
+            fs.writeFileSync(filepath, JSON.stringify(entry, null, 2) + "\n");
+            return filepath;
+        }
+    };
+}
 export async function loadProvider(pkgName) {
     try {
         const mod = await import(pkgName);

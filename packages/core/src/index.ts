@@ -1,8 +1,39 @@
 import type { CreateProvider, Provider, LumiraContext } from "@lumira/plugin-types";
+import * as fs from "node:fs";
+import * as path from "node:path";
 
 export type LoadProviderResult =
   | { ok: true; provider: Provider }
   | { ok: false; error: string };
+
+export type RunLog = {
+  timestamp: string;
+  command: string;
+  provider: string;
+  dryRun: boolean;
+  input?: any;
+  result: { success: boolean; data?: any; error?: string };
+};
+
+export function createRunLogger(baseDir: string = "./lumira-runs") {
+  return {
+    async log(entry: RunLog): Promise<string> {
+      // Ensure directory exists
+      if (!fs.existsSync(baseDir)) {
+        fs.mkdirSync(baseDir, { recursive: true });
+      }
+
+      // Generate filename with timestamp
+      const now = new Date();
+      const filename = `run-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}-${String(now.getHours()).padStart(2, "0")}${String(now.getMinutes()).padStart(2, "0")}${String(now.getSeconds()).padStart(2, "0")}.json`;
+      const filepath = path.join(baseDir, filename);
+
+      // Write log file
+      fs.writeFileSync(filepath, JSON.stringify(entry, null, 2) + "\n");
+      return filepath;
+    }
+  };
+}
 
 export async function loadProvider(pkgName: string): Promise<LoadProviderResult> {
   try {

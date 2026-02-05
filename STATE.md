@@ -57,7 +57,7 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Commands currently exist:
   - `init` (creates `lumira.config.json`; warns if already exists)
   - `doctor` (reads config if present, shows config vs override sources, prints Node/network/RPC/dry-run; suggests init if missing)
-  - `health` (requires `--provider <pkg>`; uses resolved config with overrides; no real provider installed yet)
+  - `health` (requires `--provider <pkg>`; uses resolved config with overrides; creates audit log in `./lumira-runs/`)
 
 ### Core
 - `loadProvider(pkgName)` dynamic imports provider package with full validation:
@@ -66,6 +66,9 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - Validates manifest structure (name, version, permissions, networks, features)
   - Validates required methods (`health()`, `rewards.status()`, `rewards.claim()`)
   - Returns user-friendly error messages on validation failure
+- `createRunLogger(baseDir)` audit logging system:
+  - Writes to `./lumira-runs/run-YYYYMMDD-HHMMSS.json`
+  - Logs: timestamp, command, provider, dryRun, input, result (success/error)
 - Runners:
   - `runHealth(ctx, providerPkg)`
   - `runRewardsStatus(ctx, providerPkg, input)`
@@ -86,28 +89,28 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 ---
 
 ## 4) What is NEXT (current objective)
-**Add audit logging for all actions.**
+**Add rewards commands to CLI.**
 
 ### Next prompt to execute
-- **Prompt 06 from `prompts.md`:**
-  - Implement `createRunLogger()` writing to `./lumira-runs/`
-  - Log timestamp, command, provider, dryRun, input, result
-  - Integrate audit logging into CLI commands
+- **Prompt 07 from `prompts.md`:**
+  - Add `lumira rewards status --provider <pkg>` command
+  - Add `lumira rewards claim --provider <pkg>` command with dry-run support
+  - Wire them into core runners + audit logs
 
 ---
 
 ## 5) Definition of done for the NEXT objective
 - `pnpm -r build` passes
-- Running `health` creates a log file under `lumira-runs/`
-- Log contains provider, action, and result
+- `lumira rewards status --provider @lumira/plugin-example` works
+- `lumira rewards claim --provider @lumira/plugin-example` works with dry-run
 
 ---
 
 ## 6) Session Kickoff Prompt (copy/paste into Claude Code)
 > Read STATE.md first and follow it strictly.
 > Do NOT refactor unrelated parts.
-> Execute **Prompt 06** from prompts.md.
-> After implementing, run: `pnpm -r build`, then test audit logging.
+> Execute **Prompt 07** from prompts.md.
+> After implementing, run: `pnpm -r build`, then test rewards commands.
 > Report what changed and what command outputs are expected.
 
 ---
@@ -117,8 +120,8 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Build: ✅
 - CLI doctor: ✅ (with config overrides)
 - CLI init: ✅
-- CLI health: ✅ (with @lumira/plugin-example + manifest validation)
-- Next: Prompt 06 (audit logging)
+- CLI health: ✅ (with @lumira/plugin-example + manifest validation + audit logging)
+- Next: Prompt 07 (rewards commands)
 
 ### Notes / issues
 - Node is v25.x; `corepack` missing but pnpm works via npm. Not blocking.
@@ -126,5 +129,6 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Prompt 03 completed: Config overrides via `--config`, `--rpc`, `--dry-run`, `--no-dry-run` work.
 - Prompt 04 completed: `@lumira/plugin-example` package created. Health command works with example provider. Note: Added plugin-example as devDependency to core for dynamic import resolution in monorepo.
 - Prompt 05 completed: Added `lumira.plugin.json` manifest file. Upgraded `loadProvider()` with comprehensive validation (manifest structure, required methods). Returns user-friendly error messages for invalid providers.
+- Prompt 06 completed: Implemented `createRunLogger()` in core. Integrated audit logging into health command. Every run creates a timestamped JSON log in `./lumira-runs/` with command, provider, dryRun, and result (success/error).
 
 ---

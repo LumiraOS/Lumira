@@ -88,3 +88,33 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ---
+
+## Prompt 06 ✅
+Implemented audit logging system to track all command executions. Created `createRunLogger()` in core that writes timestamped JSON logs to `./lumira-runs/`. Integrated logging into the health command to capture command, provider, dryRun setting, and result (success with data or failure with error). Logs are created for both successful and failed operations.
+
+**Log format:**
+- timestamp (ISO 8601)
+- command name
+- provider package
+- dryRun flag
+- input (optional)
+- result: { success, data/error }
+
+**Commit:**
+```
+feat(core): implement audit logging system
+
+Add createRunLogger() to core that writes timestamped JSON logs to
+./lumira-runs/run-YYYYMMDD-HHMMSS.json with full execution details.
+
+Integrate audit logging into CLI health command. Every execution now
+creates a log file containing timestamp, command, provider, dryRun,
+and result (success with data or error message).
+
+Logs are created for both successful operations and failures, providing
+a complete audit trail of all Lumira actions.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
+---

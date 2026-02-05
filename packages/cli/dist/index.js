@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { runHealth } from "@lumira/core";
+import { runHealth, createRunLogger } from "@lumira/core";
 import * as fs from "node:fs";
 import * as path from "node:path";
 const CONFIG_FILE = "lumira.config.json";
@@ -118,8 +118,33 @@ program
         dryRun: resolved.dryRun,
         log: (m) => console.log(m)
     };
-    const res = await runHealth(ctx, opts.provider);
-    console.log(res);
+    const logger = createRunLogger();
+    const timestamp = new Date().toISOString();
+    let success = false;
+    let result;
+    let error;
+    try {
+        result = await runHealth(ctx, opts.provider);
+        success = true;
+        console.log(result);
+    }
+    catch (e) {
+        success = false;
+        error = e?.message ?? String(e);
+        throw e;
+    }
+    finally {
+        const logPath = await logger.log({
+            timestamp,
+            command: "health",
+            provider: opts.provider,
+            dryRun: resolved.dryRun,
+            result: { success, data: result, error }
+        });
+        if (success) {
+            console.log(`📝 Log: ${logPath}`);
+        }
+    }
 });
 program.parseAsync(process.argv);
 //# sourceMappingURL=index.js.map
