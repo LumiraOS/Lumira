@@ -1,0 +1,30 @@
+{
+  "name": "lumira",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter @lumira/cli dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LumiraOS/Lumira.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/LumiraOS/Lumira/issues"
+  },
+  "homepage": "https://github.com/LumiraOS/Lumira#readme",
+  "private": true,
+  "packageManager": "pnpm@10.28.2",
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

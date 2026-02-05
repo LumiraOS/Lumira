@@ -1,0 +1,17 @@
+{
+  "name": "@lumira/cli",
+  "version": "0.0.0",
+  "type": "module",
+  "bin": {
+    "lumira": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@lumira/core": "workspace:*",
+    "@lumira/plugin-types": "workspace:*",
+    "commander": "^12.0.0"
+  }
+}
