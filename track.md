@@ -1,40 +1,9 @@
-# Lumira — Development Track
+# Lumira — Track
 
-This file tracks completed implementation steps with summaries and commit examples.
+## Prompt 02 ✅
+Added `lumira init` to create `lumira.config.json` with safe defaults (solana-mainnet, public RPC, dryRun: true). Updated `lumira doctor` to read and display config values or suggest running init if missing.
 
----
-
-## Prompt 02 — Project Config + `lumira init` + `lumira doctor` reads config
-
-**Status:** ✅ Completed
-
-**What was implemented:**
-- Added `lumira init` command to create `lumira.config.json` in the current working directory
-  - Creates config with safe defaults: `solana-mainnet`, public RPC, `dryRun: true`
-  - Warns if config already exists (no overwrite)
-  - Filesystem-only operation (no RPC calls)
-
-- Updated `lumira doctor` command to:
-  - Read `lumira.config.json` if present
-  - Display network, RPC URL, and dry-run setting from config
-  - Suggest running `lumira init` if config is missing
-
-**Files changed:**
-- [packages/cli/src/index.ts](packages/cli/src/index.ts)
-  - Added imports: `fs`, `path`
-  - Added `LumiraConfig` interface
-  - Added `loadConfig()` helper function
-  - Added `init` command implementation
-  - Refactored `doctor` command to read config
-
-**Testing performed:**
-- `pnpm -r build` ✅
-- `pnpm --filter @lumira/cli dev init` ✅ (creates config)
-- `pnpm --filter @lumira/cli dev init` ✅ (warns on existing config)
-- `pnpm --filter @lumira/cli dev doctor` ✅ (reads and displays config)
-- `pnpm --filter @lumira/cli dev doctor` ✅ (suggests init when missing)
-
-**Example commit message:**
+**Commit:**
 ```
 feat(cli): add project config initialization and reading
 
@@ -50,7 +19,21 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 
 ---
 
-## Next Step
-**Prompt 03:** Config overrides (CLI flags: `--config`, `--rpc`, `--dry-run`)
+## Prompt 03 ✅
+Added global CLI flags for runtime config overrides: `--config <path>`, `--rpc <url>`, `--dry-run`, `--no-dry-run`. Updated `doctor` and `health` commands to use resolved config that merges file config with CLI overrides, showing the source of each value (config/override/default).
+
+**Commit:**
+```
+feat(cli): add runtime config overrides via CLI flags
+
+Add global flags --config, --rpc, --dry-run, and --no-dry-run to allow
+runtime overrides without editing config files. Implement resolveConfig()
+to merge config file with CLI overrides.
+
+Update doctor command to display the source of each value (config,
+override, or default). Update health command to use resolved config.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
 
 ---

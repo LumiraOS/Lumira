@@ -4,22 +4,66 @@ import { runHealth } from "@lumira/core";
 import * as fs from "node:fs";
 import * as path from "node:path";
 const CONFIG_FILE = "lumira.config.json";
-function getConfigPath() {
+function getConfigPath(customPath) {
+    if (customPath) {
+        return path.isAbsolute(customPath) ? customPath : path.join(process.cwd(), customPath);
+    }
     return path.join(process.cwd(), CONFIG_FILE);
 }
-function loadConfig() {
-    const configPath = getConfigPath();
+function loadConfig(customPath) {
+    const configPath = getConfigPath(customPath);
     if (!fs.existsSync(configPath)) {
         return null;
     }
     const raw = fs.readFileSync(configPath, "utf-8");
     return JSON.parse(raw);
 }
+function resolveConfig(opts) {
+    const config = loadConfig(opts.config);
+    const defaults = {
+        network: "solana-mainnet",
+        rpcUrl: "https://api.mainnet-beta.solana.com",
+        dryRun: true
+    };
+    let rpcUrl = defaults.rpcUrl;
+    let rpcSource = "default";
+    let dryRun = defaults.dryRun;
+    let dryRunSource = "default";
+    // Apply config if present
+    if (config) {
+        rpcUrl = config.rpcUrl;
+        rpcSource = "config";
+        dryRun = config.defaults.dryRun;
+        dryRunSource = "config";
+    }
+    // Apply CLI overrides
+    if (opts.rpc) {
+        rpcUrl = opts.rpc;
+        rpcSource = "override";
+    }
+    if (opts.dryRun !== undefined) {
+        dryRun = opts.dryRun;
+        dryRunSource = "override";
+    }
+    return {
+        network: config?.network ?? defaults.network,
+        rpcUrl,
+        dryRun,
+        sources: {
+            rpcUrl: rpcSource,
+            dryRun: dryRunSource
+        }
+    };
+}
 const program = new Command();
 program
     .name("lumira")
     .description("Lumira — plugin framework + CLI for safe onchain workflows")
-    .version("0.0.0");
+    .version("0.0.0")
+    .option("--config <path>", "Path to config file", "./lumira.config.json")
+    .option("--rpc <url>", "RPC URL (overrides config)")
+    .option("--dry-run", "Enable dry-run mode (overrides config)")
+    .option("--no-dry-run", "Disable dry-run mode (overrides config)");
 program
     .command("init")
     .description("Initialize a new Lumira project (creates lumira.config.json)")
@@ -44,31 +88,34 @@ program
 program
     .command("doctor")
     .description("Check basic setup")
-    .action(async () => {
+    .action(async (_, cmd) => {
+    const opts = cmd.optsWithGlobals();
+    const resolved = resolveConfig(opts);
     console.log("✅ Node:", process.version);
-    const config = loadConfig();
+    const config = loadConfig(opts.config);
     if (config) {
-        console.log("✅ Config: lumira.config.json found");
-        console.log("   Network:", config.network);
-        console.log("   RPC:", config.rpcUrl);
-        console.log("   Dry-run:", config.defaults.dryRun);
+        console.log(`✅ Config: ${opts.config} found`);
     }
     else {
-        console.log("⚠️  Config: lumira.config.json not found");
+        console.log("⚠️  Config: not found");
         console.log("   Run `lumira init` to create one.");
     }
+    console.log("   Network:", resolved.network);
+    console.log(`   RPC: ${resolved.rpcUrl} (${resolved.sources.rpcUrl})`);
+    console.log(`   Dry-run: ${resolved.dryRun} (${resolved.sources.dryRun})`);
     console.log("Next: add a provider plugin, e.g. @lumira/plugin-bags");
 });
 program
     .command("health")
     .description("Run provider health check")
     .requiredOption("--provider <pkg>", "Provider package name (e.g. @lumira/plugin-bags)")
-    .option("--rpc <url>", "RPC URL", "https://api.mainnet-beta.solana.com")
-    .action(async (opts) => {
+    .action(async (opts, cmd) => {
+    const globalOpts = cmd.optsWithGlobals();
+    const resolved = resolveConfig(globalOpts);
     const ctx = {
-        network: "solana-mainnet",
-        rpcUrl: opts.rpc,
-        dryRun: true,
+        network: resolved.network,
+        rpcUrl: resolved.rpcUrl,
+        dryRun: resolved.dryRun,
         log: (m) => console.log(m)
     };
     const res = await runHealth(ctx, opts.provider);

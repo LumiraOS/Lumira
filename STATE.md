@@ -49,10 +49,14 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Runs in dev:
   - `pnpm --filter @lumira/cli dev doctor` ✅
   - `pnpm --filter @lumira/cli dev init` ✅
+- Global flags:
+  - `--config <path>` (default: `./lumira.config.json`)
+  - `--rpc <url>` (runtime override)
+  - `--dry-run` / `--no-dry-run` (runtime override)
 - Commands currently exist:
   - `init` (creates `lumira.config.json`; warns if already exists)
-  - `doctor` (reads config if present, prints Node/network/RPC/dry-run; suggests init if missing)
-  - `health` (requires `--provider <pkg>`; no real provider installed yet)
+  - `doctor` (reads config if present, shows config vs override sources, prints Node/network/RPC/dry-run; suggests init if missing)
+  - `health` (requires `--provider <pkg>`; uses resolved config with overrides; no real provider installed yet)
 
 ### Core
 - `loadProvider(pkgName)` dynamic imports provider package, expects export `createProvider()`.
@@ -67,29 +71,28 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 ---
 
 ## 4) What is NEXT (current objective)
-**Add CLI flag overrides for config.**
+**Create first local example provider plugin.**
 
 ### Next prompt to execute
-- **Prompt 03 from `prompts.md`:**
-  - Add `--config <path>` flag (default `./lumira.config.json`)
-  - Add `--rpc <url>` runtime override
-  - Add `--dry-run` and `--no-dry-run` flags
-  - `doctor` must show which values come from config vs overrides
+- **Prompt 04 from `prompts.md`:**
+  - Create `packages/plugin-example` package
+  - Export `createProvider()` matching `@lumira/plugin-types`
+  - Implement health(), rewards.status(), rewards.claim() with fake data
+  - Update CLI to allow `lumira health --provider @lumira/plugin-example`
 
 ---
 
 ## 5) Definition of done for the NEXT objective
-- `dev doctor --rpc ...` uses override
-- `dev doctor --config other.json` uses a different config file
 - `pnpm -r build` passes
+- `pnpm --filter @lumira/cli dev health --provider @lumira/plugin-example` works
 
 ---
 
 ## 6) Session Kickoff Prompt (copy/paste into Claude Code)
 > Read STATE.md first and follow it strictly.
 > Do NOT refactor unrelated parts.
-> Execute **Prompt 03** from prompts.md.
-> After implementing, run: `pnpm -r build`, then test with `--rpc` and `--config` flags.
+> Execute **Prompt 04** from prompts.md.
+> After implementing, run: `pnpm -r build`, then test `lumira health --provider @lumira/plugin-example`.
 > Report what changed and what command outputs are expected.
 
 ---
@@ -97,12 +100,13 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 ## 7) Session log (update after each session)
 ### Last known state
 - Build: ✅
-- CLI doctor: ✅
+- CLI doctor: ✅ (with config overrides)
 - CLI init: ✅
-- Next: Prompt 03 (config overrides/flags)
+- Next: Prompt 04 (example provider plugin)
 
 ### Notes / issues
 - Node is v25.x; `corepack` missing but pnpm works via npm. Not blocking.
 - Prompt 02 completed: `lumira init` and `lumira doctor` with config reading work.
+- Prompt 03 completed: Config overrides via `--config`, `--rpc`, `--dry-run`, `--no-dry-run` work.
 
 ---
