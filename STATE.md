@@ -58,6 +58,8 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - `init` (creates `lumira.config.json`; warns if already exists)
   - `doctor` (reads config if present, shows config vs override sources, prints Node/network/RPC/dry-run; suggests init if missing)
   - `health` (requires `--provider <pkg>`; uses resolved config with overrides; creates audit log in `./lumira-runs/`)
+  - `rewards status` (requires `--provider <pkg>`; displays rewards list with audit logging)
+  - `rewards claim` (requires `--provider <pkg>`; claims rewards with dry-run support and audit logging)
 
 ### Core
 - `loadProvider(pkgName)` dynamic imports provider package with full validation:
@@ -89,28 +91,30 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 ---
 
 ## 4) What is NEXT (current objective)
-**Add rewards commands to CLI.**
+**Create first real provider (Bags) for rewards.**
 
 ### Next prompt to execute
-- **Prompt 07 from `prompts.md`:**
-  - Add `lumira rewards status --provider <pkg>` command
-  - Add `lumira rewards claim --provider <pkg>` command with dry-run support
-  - Wire them into core runners + audit logs
+- **Prompt 08 from `prompts.md`:**
+  - Create `@lumira/plugin-bags` package
+  - Implement `rewards.status` for Bags
+  - Implement `rewards.claim` for Bags with dry-run + confirmations
+  - Short step-based output
 
 ---
 
 ## 5) Definition of done for the NEXT objective
 - `pnpm -r build` passes
-- `lumira rewards status --provider @lumira/plugin-example` works
-- `lumira rewards claim --provider @lumira/plugin-example` works with dry-run
+- `lumira rewards status --provider @lumira/plugin-bags` works
+- `lumira rewards claim --provider @lumira/plugin-bags --dry-run` does not send
+- Audit log includes results
 
 ---
 
 ## 6) Session Kickoff Prompt (copy/paste into Claude Code)
 > Read STATE.md first and follow it strictly.
 > Do NOT refactor unrelated parts.
-> Execute **Prompt 07** from prompts.md.
-> After implementing, run: `pnpm -r build`, then test rewards commands.
+> Execute **Prompt 08** from prompts.md.
+> After implementing, run: `pnpm -r build`, then test Bags provider.
 > Report what changed and what command outputs are expected.
 
 ---
@@ -121,7 +125,8 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - CLI doctor: ✅ (with config overrides)
 - CLI init: ✅
 - CLI health: ✅ (with @lumira/plugin-example + manifest validation + audit logging)
-- Next: Prompt 07 (rewards commands)
+- CLI rewards: ✅ (status + claim commands with audit logging)
+- Next: Prompt 08 (Bags provider for real rewards)
 
 ### Notes / issues
 - Node is v25.x; `corepack` missing but pnpm works via npm. Not blocking.
@@ -130,5 +135,6 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Prompt 04 completed: `@lumira/plugin-example` package created. Health command works with example provider. Note: Added plugin-example as devDependency to core for dynamic import resolution in monorepo.
 - Prompt 05 completed: Added `lumira.plugin.json` manifest file. Upgraded `loadProvider()` with comprehensive validation (manifest structure, required methods). Returns user-friendly error messages for invalid providers.
 - Prompt 06 completed: Implemented `createRunLogger()` in core. Integrated audit logging into health command. Every run creates a timestamped JSON log in `./lumira-runs/` with command, provider, dryRun, and result (success/error).
+- Prompt 07 completed: Added `rewards status` and `rewards claim` commands to CLI. Both commands integrate with audit logging. Claim command respects dry-run flag (default ON). Tested with plugin-example showing fake rewards data.
 
 ---

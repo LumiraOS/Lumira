@@ -118,3 +118,29 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ---
+
+## Prompt 07 ✅
+Added rewards commands to CLI for checking status and claiming rewards. Implemented `rewards status` and `rewards claim` subcommands with full audit logging integration. Both commands use the existing core runners and respect the dry-run flag (default ON for claim). Tested successfully with plugin-example provider showing fake rewards data.
+
+**Commands added:**
+- `lumira rewards status --provider <pkg>` - Displays rewards list
+- `lumira rewards claim --provider <pkg>` - Claims rewards with dry-run support (use `--no-dry-run` to actually send)
+
+**Commit:**
+```
+feat(cli): add rewards status and claim commands
+
+Add rewards subcommands to CLI for checking and claiming rewards:
+- rewards status: displays available rewards from provider
+- rewards claim: claims rewards with dry-run support (default ON)
+
+Both commands integrate with audit logging system, creating timestamped
+logs in ./lumira-runs/ with command details and results.
+
+Wire commands to existing core runners (runRewardsStatus, runRewardsClaim)
+and use resolved config for dry-run flag with CLI override support.
+
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+```
+
+---

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { runHealth, createRunLogger } from "@lumira/core";
+import { runHealth, runRewardsStatus, runRewardsClaim, createRunLogger } from "@lumira/core";
 import type { LumiraContext, Network } from "@lumira/plugin-types";
 import * as fs from "node:fs";
 import * as path from "node:path";
@@ -176,6 +176,95 @@ program
         command: "health",
         provider: opts.provider,
         dryRun: resolved.dryRun,
+        result: { success, data: result, error }
+      });
+      if (success) {
+        console.log(`📝 Log: ${logPath}`);
+      }
+    }
+  });
+
+const rewardsCmd = program.command("rewards").description("Rewards operations");
+
+rewardsCmd
+  .command("status")
+  .description("Check rewards status")
+  .requiredOption("--provider <pkg>", "Provider package name")
+  .action(async (opts, cmd) => {
+    const globalOpts = cmd.optsWithGlobals();
+    const resolved = resolveConfig(globalOpts);
+
+    const ctx: LumiraContext = {
+      network: resolved.network,
+      rpcUrl: resolved.rpcUrl,
+      dryRun: resolved.dryRun,
+      log: (m) => console.log(m)
+    };
+
+    const logger = createRunLogger();
+    const timestamp = new Date().toISOString();
+    let success = false;
+    let result: any;
+    let error: string | undefined;
+
+    try {
+      result = await runRewardsStatus(ctx, opts.provider, {});
+      success = true;
+      console.log(JSON.stringify(result, null, 2));
+    } catch (e: any) {
+      success = false;
+      error = e?.message ?? String(e);
+      throw e;
+    } finally {
+      const logPath = await logger.log({
+        timestamp,
+        command: "rewards.status",
+        provider: opts.provider,
+        dryRun: resolved.dryRun,
+        result: { success, data: result, error }
+      });
+      if (success) {
+        console.log(`📝 Log: ${logPath}`);
+      }
+    }
+  });
+
+rewardsCmd
+  .command("claim")
+  .description("Claim rewards")
+  .requiredOption("--provider <pkg>", "Provider package name")
+  .action(async (opts, cmd) => {
+    const globalOpts = cmd.optsWithGlobals();
+    const resolved = resolveConfig(globalOpts);
+
+    const ctx: LumiraContext = {
+      network: resolved.network,
+      rpcUrl: resolved.rpcUrl,
+      dryRun: resolved.dryRun,
+      log: (m) => console.log(m)
+    };
+
+    const logger = createRunLogger();
+    const timestamp = new Date().toISOString();
+    let success = false;
+    let result: any;
+    let error: string | undefined;
+
+    try {
+      result = await runRewardsClaim(ctx, opts.provider, { dryRun: resolved.dryRun });
+      success = true;
+      console.log(JSON.stringify(result, null, 2));
+    } catch (e: any) {
+      success = false;
+      error = e?.message ?? String(e);
+      throw e;
+    } finally {
+      const logPath = await logger.log({
+        timestamp,
+        command: "rewards.claim",
+        provider: opts.provider,
+        dryRun: resolved.dryRun,
+        input: { dryRun: resolved.dryRun },
         result: { success, data: result, error }
       });
       if (success) {
