@@ -144,3 +144,35 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
 ```
 
 ---
+
+## Prompt 08 ✅
+Created `@lumira/plugin-bags` — the first real Solana provider using `@solana/web3.js`. Implements health check (pings RPC, returns Solana core version), rewards status (fetches stake accounts for a wallet address), and rewards claim (builds withdraw instructions with step-based output, respects dry-run). Added `--wallet <address>` flag to CLI rewards commands. Wallet signing is not yet implemented — claim builds the transaction but does not send.
+
+**Provider features:**
+- `health()` — Connects to RPC, returns Solana version
+- `rewards.status(--wallet)` — Fetches stake accounts, shows balances
+- `rewards.claim(--wallet)` — 3-step process: check accounts → build instructions → send (or dry-run skip)
+
+**CLI changes:**
+- Added `--wallet <address>` option to `rewards status` and `rewards claim`
+- Wallet address passed through to provider via input
+
+**Commit:**
+```
+feat(plugin-bags): add Bags provider for Solana rewards
+
+Create @lumira/plugin-bags package — first real Solana provider using
+@solana/web3.js for on-chain interaction:
+- health() pings RPC endpoint, returns Solana core version
+- rewards.status() fetches stake accounts for a wallet address
+- rewards.claim() builds withdraw instructions with step-based output,
+  respects dry-run flag (wallet signing not yet implemented)
+
+Add --wallet flag to CLI rewards status and claim commands to pass
+wallet address through to providers. Add plugin-bags as dependency
+to core and cli for dynamic import resolution.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+
+---

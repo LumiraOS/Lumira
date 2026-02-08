@@ -1,5 +1,5 @@
 {
-  "name": "@lumira/core",
+  "name": "@lumira/plugin-bags",
   "version": "0.0.0",
   "type": "module",
   "main": "dist/index.js",
@@ -14,10 +14,7 @@
     "build": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@lumira/plugin-types": "workspace:*"
-  },
-  "devDependencies": {
-    "@lumira/plugin-example": "workspace:*",
-    "@lumira/plugin-bags": "workspace:*"
+    "@lumira/plugin-types": "workspace:*",
+    "@solana/web3.js": "^1.98.0"
   }
 }

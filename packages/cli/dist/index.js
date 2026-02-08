@@ -151,6 +151,7 @@ rewardsCmd
     .command("status")
     .description("Check rewards status")
     .requiredOption("--provider <pkg>", "Provider package name")
+    .option("--wallet <address>", "Wallet address")
     .action(async (opts, cmd) => {
     const globalOpts = cmd.optsWithGlobals();
     const resolved = resolveConfig(globalOpts);
@@ -166,7 +167,7 @@ rewardsCmd
     let result;
     let error;
     try {
-        result = await runRewardsStatus(ctx, opts.provider, {});
+        result = await runRewardsStatus(ctx, opts.provider, { walletAddress: opts.wallet });
         success = true;
         console.log(JSON.stringify(result, null, 2));
     }
@@ -181,6 +182,7 @@ rewardsCmd
             command: "rewards.status",
             provider: opts.provider,
             dryRun: resolved.dryRun,
+            input: { walletAddress: opts.wallet },
             result: { success, data: result, error }
         });
         if (success) {
@@ -192,6 +194,7 @@ rewardsCmd
     .command("claim")
     .description("Claim rewards")
     .requiredOption("--provider <pkg>", "Provider package name")
+    .option("--wallet <address>", "Wallet address")
     .action(async (opts, cmd) => {
     const globalOpts = cmd.optsWithGlobals();
     const resolved = resolveConfig(globalOpts);
@@ -207,7 +210,7 @@ rewardsCmd
     let result;
     let error;
     try {
-        result = await runRewardsClaim(ctx, opts.provider, { dryRun: resolved.dryRun });
+        result = await runRewardsClaim(ctx, opts.provider, { walletAddress: opts.wallet, dryRun: resolved.dryRun });
         success = true;
         console.log(JSON.stringify(result, null, 2));
     }
@@ -222,7 +225,7 @@ rewardsCmd
             command: "rewards.claim",
             provider: opts.provider,
             dryRun: resolved.dryRun,
-            input: { dryRun: resolved.dryRun },
+            input: { walletAddress: opts.wallet, dryRun: resolved.dryRun },
             result: { success, data: result, error }
         });
         if (success) {

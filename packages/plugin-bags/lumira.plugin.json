@@ -1,0 +1,7 @@
+{
+  "name": "@lumira/plugin-bags",
+  "version": "0.0.0",
+  "permissions": ["read", "sign", "send"],
+  "networks": ["solana-mainnet", "solana-devnet"],
+  "features": ["rewards"]
+}

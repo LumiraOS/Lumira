@@ -35,6 +35,7 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - `@lumira/core`
   - `@lumira/cli`
   - `@lumira/plugin-example`
+  - `@lumira/plugin-bags`
 
 ### Build
 - `pnpm install` ✅
@@ -58,8 +59,8 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - `init` (creates `lumira.config.json`; warns if already exists)
   - `doctor` (reads config if present, shows config vs override sources, prints Node/network/RPC/dry-run; suggests init if missing)
   - `health` (requires `--provider <pkg>`; uses resolved config with overrides; creates audit log in `./lumira-runs/`)
-  - `rewards status` (requires `--provider <pkg>`; displays rewards list with audit logging)
-  - `rewards claim` (requires `--provider <pkg>`; claims rewards with dry-run support and audit logging)
+  - `rewards status` (requires `--provider <pkg>`; optional `--wallet <address>`; displays rewards list with audit logging)
+  - `rewards claim` (requires `--provider <pkg>`; optional `--wallet <address>`; claims rewards with dry-run support and audit logging)
 
 ### Core
 - `loadProvider(pkgName)` dynamic imports provider package with full validation:
@@ -88,33 +89,41 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - `rewards.claim()` respects dry-run flag, returns fake signatures
 - Passes all manifest validations.
 
+### plugin-bags
+- First real Solana provider using `@solana/web3.js`.
+- Has `lumira.plugin.json` manifest file (permissions: read, sign, send).
+- Implements full Provider interface:
+  - `health()` pings RPC endpoint, returns Solana core version
+  - `rewards.status()` fetches stake accounts for a wallet address via RPC
+  - `rewards.claim()` builds withdraw instructions, respects dry-run, step-based output
+- Wallet signing not yet implemented (claim builds tx but does not send).
+
 ---
 
 ## 4) What is NEXT (current objective)
-**Create first real provider (Bags) for rewards.**
+**Create Pump plugin for creator fee claiming.**
 
 ### Next prompt to execute
-- **Prompt 08 from `prompts.md`:**
-  - Create `@lumira/plugin-bags` package
-  - Implement `rewards.status` for Bags
-  - Implement `rewards.claim` for Bags with dry-run + confirmations
-  - Short step-based output
+- **Prompt 09 from `prompts.md`:**
+  - Create `@lumira/plugin-pump` package
+  - Implement `rewards.claim` for creator fees
+  - Minimal `rewards.status`
+  - Confirmations + audit log
 
 ---
 
 ## 5) Definition of done for the NEXT objective
 - `pnpm -r build` passes
-- `lumira rewards status --provider @lumira/plugin-bags` works
-- `lumira rewards claim --provider @lumira/plugin-bags --dry-run` does not send
-- Audit log includes results
+- `lumira rewards claim --provider @lumira/plugin-pump --dry-run` works
+- `lumira rewards claim --provider @lumira/plugin-pump` with confirmation works
 
 ---
 
 ## 6) Session Kickoff Prompt (copy/paste into Claude Code)
 > Read STATE.md first and follow it strictly.
 > Do NOT refactor unrelated parts.
-> Execute **Prompt 08** from prompts.md.
-> After implementing, run: `pnpm -r build`, then test Bags provider.
+> Execute **Prompt 09** from prompts.md.
+> After implementing, run: `pnpm -r build`, then test Pump provider.
 > Report what changed and what command outputs are expected.
 
 ---
@@ -124,9 +133,10 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Build: ✅
 - CLI doctor: ✅ (with config overrides)
 - CLI init: ✅
-- CLI health: ✅ (with @lumira/plugin-example + manifest validation + audit logging)
-- CLI rewards: ✅ (status + claim commands with audit logging)
-- Next: Prompt 08 (Bags provider for real rewards)
+- CLI health: ✅ (with plugin-example, plugin-bags + manifest validation + audit logging)
+- CLI rewards: ✅ (status + claim with --wallet flag, audit logging)
+- Bags health: ✅ (connects to Solana mainnet RPC, returns core version)
+- Next: Prompt 09 (Pump plugin for creator fee claiming)
 
 ### Notes / issues
 - Node is v25.x; `corepack` missing but pnpm works via npm. Not blocking.
@@ -136,5 +146,6 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Prompt 05 completed: Added `lumira.plugin.json` manifest file. Upgraded `loadProvider()` with comprehensive validation (manifest structure, required methods). Returns user-friendly error messages for invalid providers.
 - Prompt 06 completed: Implemented `createRunLogger()` in core. Integrated audit logging into health command. Every run creates a timestamped JSON log in `./lumira-runs/` with command, provider, dryRun, and result (success/error).
 - Prompt 07 completed: Added `rewards status` and `rewards claim` commands to CLI. Both commands integrate with audit logging. Claim command respects dry-run flag (default ON). Tested with plugin-example showing fake rewards data.
+- Prompt 08 completed: Created `@lumira/plugin-bags` using `@solana/web3.js`. Health pings RPC. Rewards status fetches stake accounts. Claim builds withdraw instructions with step-based output. Added `--wallet` flag to CLI rewards commands. Wallet signing not yet implemented.
 
 ---
