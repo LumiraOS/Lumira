@@ -36,6 +36,7 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - `@lumira/cli`
   - `@lumira/plugin-example`
   - `@lumira/plugin-bags`
+  - `@lumira/plugin-pump`
 
 ### Build
 - `pnpm install` ✅
@@ -98,32 +99,40 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
   - `rewards.claim()` builds withdraw instructions, respects dry-run, step-based output
 - Wallet signing not yet implemented (claim builds tx but does not send).
 
+### plugin-pump
+- Creator fee claiming provider using `@solana/web3.js` + `@solana/spl-token`.
+- Has `lumira.plugin.json` manifest file (permissions: read, sign, send; networks: solana-mainnet only).
+- Implements full Provider interface:
+  - `health()` pings RPC, verifies Pump program exists on-chain
+  - `rewards.status()` scans token accounts for empty (zero-balance) reclaimable accounts
+  - `rewards.claim()` builds close-account instructions to reclaim rent SOL, step-based output
+- Wallet signing not yet implemented (claim builds tx but does not send).
+
 ---
 
 ## 4) What is NEXT (current objective)
-**Create Pump plugin for creator fee claiming.**
+**Polish UX + docs.**
 
 ### Next prompt to execute
-- **Prompt 09 from `prompts.md`:**
-  - Create `@lumira/plugin-pump` package
-  - Implement `rewards.claim` for creator fees
-  - Minimal `rewards.status`
-  - Confirmations + audit log
+- **Prompt 10 from `prompts.md`:**
+  - Better output formatting
+  - `examples/basic`
+  - Architecture docs
 
 ---
 
 ## 5) Definition of done for the NEXT objective
-- `pnpm -r build` passes
-- `lumira rewards claim --provider @lumira/plugin-pump --dry-run` works
-- `lumira rewards claim --provider @lumira/plugin-pump` with confirmation works
+- Better CLI output formatting
+- Example project in `examples/basic`
+- Architecture documentation
 
 ---
 
 ## 6) Session Kickoff Prompt (copy/paste into Claude Code)
 > Read STATE.md first and follow it strictly.
 > Do NOT refactor unrelated parts.
-> Execute **Prompt 09** from prompts.md.
-> After implementing, run: `pnpm -r build`, then test Pump provider.
+> Execute **Prompt 10** from prompts.md.
+> After implementing, run: `pnpm -r build`, then verify output and docs.
 > Report what changed and what command outputs are expected.
 
 ---
@@ -133,10 +142,11 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Build: ✅
 - CLI doctor: ✅ (with config overrides)
 - CLI init: ✅
-- CLI health: ✅ (with plugin-example, plugin-bags + manifest validation + audit logging)
+- CLI health: ✅ (plugin-example, plugin-bags, plugin-pump)
 - CLI rewards: ✅ (status + claim with --wallet flag, audit logging)
-- Bags health: ✅ (connects to Solana mainnet RPC, returns core version)
-- Next: Prompt 09 (Pump plugin for creator fee claiming)
+- Bags health: ✅ (connects to Solana mainnet RPC)
+- Pump health: ✅ (connects to RPC, verifies Pump program on-chain)
+- Next: Prompt 10 (Polishing UX + docs)
 
 ### Notes / issues
 - Node is v25.x; `corepack` missing but pnpm works via npm. Not blocking.
@@ -147,5 +157,6 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Prompt 06 completed: Implemented `createRunLogger()` in core. Integrated audit logging into health command. Every run creates a timestamped JSON log in `./lumira-runs/` with command, provider, dryRun, and result (success/error).
 - Prompt 07 completed: Added `rewards status` and `rewards claim` commands to CLI. Both commands integrate with audit logging. Claim command respects dry-run flag (default ON). Tested with plugin-example showing fake rewards data.
 - Prompt 08 completed: Created `@lumira/plugin-bags` using `@solana/web3.js`. Health pings RPC. Rewards status fetches stake accounts. Claim builds withdraw instructions with step-based output. Added `--wallet` flag to CLI rewards commands. Wallet signing not yet implemented.
+- Prompt 09 completed: Created `@lumira/plugin-pump` using `@solana/web3.js` + `@solana/spl-token`. Health verifies Pump program on-chain. Rewards status scans for empty token accounts with reclaimable rent. Claim builds close-account instructions with step-based output. Wallet signing not yet implemented.
 
 ---

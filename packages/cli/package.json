@@ -14,6 +14,7 @@
     "@lumira/plugin-types": "workspace:*",
     "@lumira/plugin-example": "workspace:*",
     "@lumira/plugin-bags": "workspace:*",
+    "@lumira/plugin-pump": "workspace:*",
     "commander": "^12.0.0"
   }
 }

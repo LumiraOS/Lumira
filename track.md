@@ -176,3 +176,30 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
 
 ---
+
+## Prompt 09 ✅
+Created `@lumira/plugin-pump` — creator fee claiming provider for Pump.fun tokens. Uses `@solana/web3.js` + `@solana/spl-token`. Health check verifies Pump program exists on-chain. Rewards status scans wallet token accounts for empty (zero-balance) accounts with reclaimable rent SOL. Claim builds close-account instructions to reclaim rent with step-based output and dry-run support. Wallet signing not yet implemented.
+
+**Provider features:**
+- `health()` — Pings RPC, verifies Pump program ID on-chain
+- `rewards.status(--wallet)` — Scans token accounts, identifies empty accounts with reclaimable rent
+- `rewards.claim(--wallet)` — 3-step: scan accounts → build close instructions → send (or dry-run skip)
+
+**Commit:**
+```
+feat(plugin-pump): add Pump provider for creator fee claiming
+
+Create @lumira/plugin-pump package for Pump.fun creator fee claiming
+using @solana/web3.js and @solana/spl-token:
+- health() pings RPC and verifies Pump program exists on-chain
+- rewards.status() scans token accounts for empty reclaimable accounts
+- rewards.claim() builds close-account instructions to reclaim rent SOL,
+  with step-based output and dry-run support
+
+Add plugin-pump as dependency to core and cli for dynamic import
+resolution in pnpm workspace.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+
+---
