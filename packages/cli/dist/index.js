@@ -29,14 +29,12 @@ function resolveConfig(opts) {
     let rpcSource = "default";
     let dryRun = defaults.dryRun;
     let dryRunSource = "default";
-    // Apply config if present
     if (config) {
         rpcUrl = config.rpcUrl;
         rpcSource = "config";
         dryRun = config.defaults.dryRun;
         dryRunSource = "config";
     }
-    // Apply CLI overrides
     if (opts.rpc) {
         rpcUrl = opts.rpc;
         rpcSource = "override";
@@ -55,6 +53,62 @@ function resolveConfig(opts) {
         }
     };
 }
+// --- Output formatting ---
+function formatHealth(res) {
+    const icon = res.ok ? "✅" : "❌";
+    const lines = [`${icon} Health: ${res.ok ? "OK" : "FAILED"}`];
+    if (res.details) {
+        for (const [k, v] of Object.entries(res.details)) {
+            lines.push(`   ${k}: ${v}`);
+        }
+    }
+    return lines.join("\n");
+}
+function formatRewardsStatus(res) {
+    if (res.items.length === 0)
+        return "   No rewards found.";
+    const lines = [];
+    for (const item of res.items) {
+        const amount = item.amount ? ` — ${item.amount}` : "";
+        lines.push(`   ${item.label}${amount}`);
+        if (item.meta) {
+            for (const [k, v] of Object.entries(item.meta)) {
+                lines.push(`     ${k}: ${v}`);
+            }
+        }
+    }
+    return lines.join("\n");
+}
+function formatClaimResult(res) {
+    const lines = [];
+    if (res.dryRun) {
+        lines.push("🔒 Mode: dry-run (no transaction sent)");
+    }
+    else if (res.sent) {
+        lines.push("✅ Transaction sent");
+    }
+    else {
+        lines.push("⚠️  Transaction not sent");
+    }
+    if (res.summary)
+        lines.push(`   ${res.summary}`);
+    if (res.signatures?.length) {
+        lines.push(`   Signatures:`);
+        for (const sig of res.signatures) {
+            lines.push(`     ${sig}`);
+        }
+    }
+    return lines.join("\n");
+}
+function makeCtx(resolved) {
+    return {
+        network: resolved.network,
+        rpcUrl: resolved.rpcUrl,
+        dryRun: resolved.dryRun,
+        log: (m) => console.log(m)
+    };
+}
+// --- CLI ---
 const program = new Command();
 program
     .name("lumira")
@@ -83,7 +137,11 @@ program
     };
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + "\n");
     console.log(`✅ Created: ${configPath}`);
-    console.log("   Project initialized.");
+    console.log("   Project initialized with safe defaults.");
+    console.log("");
+    console.log("Next steps:");
+    console.log("   lumira doctor              — verify setup");
+    console.log("   lumira health --provider … — check a provider");
 });
 program
     .command("doctor")
@@ -91,19 +149,22 @@ program
     .action(async (_, cmd) => {
     const opts = cmd.optsWithGlobals();
     const resolved = resolveConfig(opts);
-    console.log("✅ Node:", process.version);
+    console.log("Lumira Doctor");
+    console.log("─────────────────────────────");
+    console.log(`   Node:    ${process.version}`);
     const config = loadConfig(opts.config);
     if (config) {
-        console.log(`✅ Config: ${opts.config} found`);
+        console.log(`   Config:  ✅ ${opts.config}`);
     }
     else {
-        console.log("⚠️  Config: not found");
-        console.log("   Run `lumira init` to create one.");
+        console.log("   Config:  ⚠️  not found");
+        console.log("            Run \`lumira init\` to create one.");
     }
-    console.log("   Network:", resolved.network);
-    console.log(`   RPC: ${resolved.rpcUrl} (${resolved.sources.rpcUrl})`);
+    console.log(`   Network: ${resolved.network}`);
+    console.log(`   RPC:     ${resolved.rpcUrl} (${resolved.sources.rpcUrl})`);
     console.log(`   Dry-run: ${resolved.dryRun} (${resolved.sources.dryRun})`);
-    console.log("Next: add a provider plugin, e.g. @lumira/plugin-bags");
+    console.log("─────────────────────────────");
+    console.log("Next: lumira health --provider @lumira/plugin-bags");
 });
 program
     .command("health")
@@ -112,12 +173,7 @@ program
     .action(async (opts, cmd) => {
     const globalOpts = cmd.optsWithGlobals();
     const resolved = resolveConfig(globalOpts);
-    const ctx = {
-        network: resolved.network,
-        rpcUrl: resolved.rpcUrl,
-        dryRun: resolved.dryRun,
-        log: (m) => console.log(m)
-    };
+    const ctx = makeCtx(resolved);
     const logger = createRunLogger();
     const timestamp = new Date().toISOString();
     let success = false;
@@ -126,12 +182,13 @@ program
     try {
         result = await runHealth(ctx, opts.provider);
         success = true;
-        console.log(result);
+        console.log("");
+        console.log(formatHealth(result));
     }
     catch (e) {
         success = false;
         error = e?.message ?? String(e);
-        throw e;
+        console.error(`\n❌ ${error}`);
     }
     finally {
         const logPath = await logger.log({
@@ -141,9 +198,7 @@ program
             dryRun: resolved.dryRun,
             result: { success, data: result, error }
         });
-        if (success) {
-            console.log(`📝 Log: ${logPath}`);
-        }
+        console.log(`\n📝 Log: ${logPath}`);
     }
 });
 const rewardsCmd = program.command("rewards").description("Rewards operations");
@@ -155,12 +210,7 @@ rewardsCmd
     .action(async (opts, cmd) => {
     const globalOpts = cmd.optsWithGlobals();
     const resolved = resolveConfig(globalOpts);
-    const ctx = {
-        network: resolved.network,
-        rpcUrl: resolved.rpcUrl,
-        dryRun: resolved.dryRun,
-        log: (m) => console.log(m)
-    };
+    const ctx = makeCtx(resolved);
     const logger = createRunLogger();
     const timestamp = new Date().toISOString();
     let success = false;
@@ -169,12 +219,15 @@ rewardsCmd
     try {
         result = await runRewardsStatus(ctx, opts.provider, { walletAddress: opts.wallet });
         success = true;
-        console.log(JSON.stringify(result, null, 2));
+        console.log("\nRewards Status");
+        console.log("─────────────────────────────");
+        console.log(formatRewardsStatus(result));
+        console.log("─────────────────────────────");
     }
     catch (e) {
         success = false;
         error = e?.message ?? String(e);
-        throw e;
+        console.error(`\n❌ ${error}`);
     }
     finally {
         const logPath = await logger.log({
@@ -185,9 +238,7 @@ rewardsCmd
             input: { walletAddress: opts.wallet },
             result: { success, data: result, error }
         });
-        if (success) {
-            console.log(`📝 Log: ${logPath}`);
-        }
+        console.log(`\n📝 Log: ${logPath}`);
     }
 });
 rewardsCmd
@@ -198,12 +249,7 @@ rewardsCmd
     .action(async (opts, cmd) => {
     const globalOpts = cmd.optsWithGlobals();
     const resolved = resolveConfig(globalOpts);
-    const ctx = {
-        network: resolved.network,
-        rpcUrl: resolved.rpcUrl,
-        dryRun: resolved.dryRun,
-        log: (m) => console.log(m)
-    };
+    const ctx = makeCtx(resolved);
     const logger = createRunLogger();
     const timestamp = new Date().toISOString();
     let success = false;
@@ -212,12 +258,15 @@ rewardsCmd
     try {
         result = await runRewardsClaim(ctx, opts.provider, { walletAddress: opts.wallet, dryRun: resolved.dryRun });
         success = true;
-        console.log(JSON.stringify(result, null, 2));
+        console.log("\nClaim Result");
+        console.log("─────────────────────────────");
+        console.log(formatClaimResult(result));
+        console.log("─────────────────────────────");
     }
     catch (e) {
         success = false;
         error = e?.message ?? String(e);
-        throw e;
+        console.error(`\n❌ ${error}`);
     }
     finally {
         const logPath = await logger.log({
@@ -228,9 +277,7 @@ rewardsCmd
             input: { walletAddress: opts.wallet, dryRun: resolved.dryRun },
             result: { success, data: result, error }
         });
-        if (success) {
-            console.log(`📝 Log: ${logPath}`);
-        }
+        console.log(`\n📝 Log: ${logPath}`);
     }
 });
 program.parseAsync(process.argv);

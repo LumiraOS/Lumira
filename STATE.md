@@ -111,28 +111,30 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 ---
 
 ## 4) What is NEXT (current objective)
-**Polish UX + docs.**
+**Release prep.**
 
 ### Next prompt to execute
-- **Prompt 10 from `prompts.md`:**
-  - Better output formatting
-  - `examples/basic`
-  - Architecture docs
+- **Prompt 11 from `prompts.md`:**
+  - LICENSE
+  - CONTRIBUTING
+  - SECURITY
+  - GitHub Actions build/test
+  - Tag `v0.1.0-alpha`
 
 ---
 
 ## 5) Definition of done for the NEXT objective
-- Better CLI output formatting
-- Example project in `examples/basic`
-- Architecture documentation
+- LICENSE, CONTRIBUTING, SECURITY files exist
+- GitHub Actions CI runs build
+- Tag `v0.1.0-alpha` created
 
 ---
 
 ## 6) Session Kickoff Prompt (copy/paste into Claude Code)
 > Read STATE.md first and follow it strictly.
 > Do NOT refactor unrelated parts.
-> Execute **Prompt 10** from prompts.md.
-> After implementing, run: `pnpm -r build`, then verify output and docs.
+> Execute **Prompt 11** from prompts.md.
+> After implementing, run: `pnpm -r build`, verify CI config, tag release.
 > Report what changed and what command outputs are expected.
 
 ---
@@ -146,7 +148,9 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - CLI rewards: ✅ (status + claim with --wallet flag, audit logging)
 - Bags health: ✅ (connects to Solana mainnet RPC)
 - Pump health: ✅ (connects to RPC, verifies Pump program on-chain)
-- Next: Prompt 10 (Polishing UX + docs)
+- Formatted output: ✅ (headers, separators, icons, structured display)
+- examples/basic: ✅
+- Next: Prompt 11 (Release prep)
 
 ### Notes / issues
 - Node is v25.x; `corepack` missing but pnpm works via npm. Not blocking.
@@ -158,5 +162,6 @@ Purpose: keep Lumira consistent across multi-day prompt sessions.
 - Prompt 07 completed: Added `rewards status` and `rewards claim` commands to CLI. Both commands integrate with audit logging. Claim command respects dry-run flag (default ON). Tested with plugin-example showing fake rewards data.
 - Prompt 08 completed: Created `@lumira/plugin-bags` using `@solana/web3.js`. Health pings RPC. Rewards status fetches stake accounts. Claim builds withdraw instructions with step-based output. Added `--wallet` flag to CLI rewards commands. Wallet signing not yet implemented.
 - Prompt 09 completed: Created `@lumira/plugin-pump` using `@solana/web3.js` + `@solana/spl-token`. Health verifies Pump program on-chain. Rewards status scans for empty token accounts with reclaimable rent. Claim builds close-account instructions with step-based output. Wallet signing not yet implemented.
+- Prompt 10 completed: Polished CLI output with formatted headers, separators, icons. Added formatHealth/formatRewardsStatus/formatClaimResult helpers. Created `examples/basic` with config and README. Errors no longer throw raw stack traces.
 
 ---

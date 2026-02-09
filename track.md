@@ -203,3 +203,33 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
 
 ---
+
+## Prompt 10 ✅
+Polished CLI output with human-readable formatting. Added formatHealth, formatRewardsStatus, and formatClaimResult helpers. Doctor command now shows structured output with separators. Health shows status icons. Rewards status displays items with amounts and metadata in a clean layout. Claim shows dry-run/sent status with icons. Errors display cleanly without raw stack traces. Created `examples/basic` with config and README documenting all commands.
+
+**Output improvements:**
+- Doctor: structured with separators and aligned labels
+- Health: `✅ Health: OK` with detail lines
+- Rewards status: header + separator + items with amounts
+- Claim: `🔒 dry-run` / `✅ sent` / `⚠️ not sent` with summary
+- Errors: `❌ message` instead of raw stack trace
+- All commands still log to audit files
+
+**Commit:**
+```
+feat(cli): polish output formatting and add examples
+
+Improve CLI output with human-readable formatting:
+- Add formatHealth, formatRewardsStatus, formatClaimResult helpers
+- Doctor shows structured output with separators and aligned labels
+- Health displays status icons with detail breakdown
+- Rewards status shows items in clean layout with amounts and metadata
+- Claim shows dry-run/sent status icons with summary and signatures
+- Errors display cleanly without raw stack traces
+
+Create examples/basic with config and README documenting all commands.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+
+---
