@@ -233,3 +233,29 @@ Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
 ```
 
 ---
+
+## Prompt 11 ✅
+Release prep complete. Added LICENSE (MIT), CONTRIBUTING.md with dev setup and plugin creation guide, SECURITY.md with vulnerability reporting policy and security design overview. Added GitHub Actions CI workflow running build on Node 20 and 22 with pnpm. Tagged `v0.1.0-alpha`.
+
+**Files added:**
+- `LICENSE` — MIT License
+- `CONTRIBUTING.md` — Dev setup, project structure, plugin creation guide, guidelines
+- `SECURITY.md` — Vulnerability reporting, security design principles
+- `.github/workflows/ci.yml` — CI: checkout, pnpm, Node 20+22, build
+
+**Commit:**
+```
+chore: release prep — LICENSE, CONTRIBUTING, SECURITY, CI
+
+Add MIT LICENSE, CONTRIBUTING.md with dev setup and plugin creation
+guide, SECURITY.md with vulnerability reporting and security design.
+
+Add GitHub Actions CI workflow running pnpm install and build on
+Node 20 and 22. Tag v0.1.0-alpha.
+
+Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+```
+
+---
+
+## ALL PROMPTS COMPLETE
